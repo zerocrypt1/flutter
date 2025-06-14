@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart'; // Add this import
+
 
 import 'otp.dart'; // Import the OTP verification page
 
@@ -74,7 +76,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> with SingleTick
 
     try {
       final response = await http.post(
-        Uri.parse('http://localhost:5050/api/auth/forgot-password'),
+        Uri.parse('${dotenv.env['API_BASE_URL']}/api/auth/forgot-password'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'email': email,

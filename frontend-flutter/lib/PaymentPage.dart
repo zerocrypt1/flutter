@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart'; // Add this import
+
 
 class Response {
   final String orderId;
@@ -107,7 +109,7 @@ class _PaymentPageState extends State<PaymentPage> {
 }
 
 Future<Response> fetchOrderIdFromYourServer() async {
-  final url = Uri.parse('http://localhost:5050/api/payment/create-order');
+  final url = Uri.parse('${dotenv.env['API_BASE_URL']}/api/payment/create-order');
   final response = await http.post(
     url,
     headers: <String, String>{

@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart'; // Add this import
+
 
 class ProfilePage extends StatefulWidget {
   final Map<String, dynamic> applicant;
@@ -34,7 +36,7 @@ class _ProfilePageState extends State<ProfilePage> {
     try {
       // First, fetch the applicant's complete data using the name to get the ID
       final applicantsResponse = await http.get(
-        Uri.parse('http://localhost:5050/api/formdatas'),
+        Uri.parse('${dotenv.env['API_BASE_URL']}/api/formdatas'),
       );
 
       if (applicantsResponse.statusCode == 200) {
@@ -83,7 +85,7 @@ class _ProfilePageState extends State<ProfilePage> {
       }
       
       final response = await http.get(
-        Uri.parse('http://localhost:5050/api/users/$userId'),
+        Uri.parse('${dotenv.env['API_BASE_URL']}/api/users/$userId'),
         headers: {
           'Authorization': 'Bearer $token',
         },
@@ -125,7 +127,7 @@ class _ProfilePageState extends State<ProfilePage> {
       if (_isFavorited) {
         // Remove from favorites
         final response = await http.delete(
-          Uri.parse('http://localhost:5050/api/users/$userId/favorites/${_fullApplicantData['_id']}'),
+          Uri.parse('${dotenv.env['API_BASE_URL']}/api/users/$userId/favorites/${_fullApplicantData['_id']}'),
           headers: {
             'Authorization': 'Bearer $token',
           },
@@ -144,7 +146,7 @@ class _ProfilePageState extends State<ProfilePage> {
       } else {
         // Add to favorites
         final response = await http.post(
-          Uri.parse('http://localhost:5050/api/users/$userId/favorites'),
+          Uri.parse('${dotenv.env['API_BASE_URL']}/api/users/$userId/favorites'),
           headers: {
             'Authorization': 'Bearer $token',
             'Content-Type': 'application/json',

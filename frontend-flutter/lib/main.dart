@@ -1,21 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 import 'sign_in_sign_up_page.dart';
 import 'forgot_password_page.dart';
 import 'home_page.dart';
 import 'PaymentPage.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-void main() {
+Future<void> main() async {
   // Ensure Flutter is initialized
   WidgetsFlutterBinding.ensureInitialized();
-  
+
+  // Load environment variables (production env file)
+  await dotenv.load(fileName: ".env.production");
+
   // Set preferred orientations
-  SystemChrome.setPreferredOrientations([
+  await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  
+
+  // Run the app
   runApp(const MyApp());
 }
 
@@ -74,10 +80,11 @@ class _MyAppState extends State<MyApp> {
           ),
         ),
       ),
-      // Show loading indicator while checking authentication status
-      home: isLoading 
-        ? const Scaffold(body: Center(child: CircularProgressIndicator()))
-        : isLoggedIn ? const HomePage() : const SignInSignUpPage(),
+      home: isLoading
+          ? const Scaffold(body: Center(child: CircularProgressIndicator()))
+          : isLoggedIn
+              ? const HomePage()
+              : const SignInSignUpPage(),
       routes: {
         '/forgot-password': (context) => const ForgotPasswordPage(),
         '/home': (context) => const HomePage(),

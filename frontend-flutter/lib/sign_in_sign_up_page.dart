@@ -4,7 +4,9 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter_dotenv/flutter_dotenv.dart'; // Add this import
 import 'otp.dart';
+import 'package:flutter_aakrit/config/app_config.dart';
 
 // Initializing storage
 final storage = FlutterSecureStorage();
@@ -12,7 +14,7 @@ final storage = FlutterSecureStorage();
 // Initialize Google Sign-In with your client ID
 // IMPORTANT: Replace this with your actual Google Client ID
 final GoogleSignIn _googleSignIn = GoogleSignIn(
-  clientId: kIsWeb ? '654973870763-ebiusu3snpce7ojmfuot8kbhup6m4qi3.apps.googleusercontent.com' : null,
+  clientId: kIsWeb ? AppConfig.googleWebClientId : null,
   scopes: [
     'email',
     'https://www.googleapis.com/auth/userinfo.profile',
@@ -661,7 +663,7 @@ class _SignInSignUpPageState extends State<SignInSignUpPage> with SingleTickerPr
   Future<void> _signInWithGoogle(String idToken, GoogleSignInAccount googleUser) async {
     try {
       final response = await http.post(
-        Uri.parse('http://localhost:5050/api/auth/google'),
+        Uri.parse('${dotenv.env['API_BASE_URL']}/api/auth/google'),
         headers: {'Content-Type': 'application/json; charset=UTF-8'},
         body: jsonEncode({
           'idToken': idToken,
@@ -727,7 +729,7 @@ class _SignInSignUpPageState extends State<SignInSignUpPage> with SingleTickerPr
   Future<void> _signIn() async {
     try {
       final response = await http.post(
-        Uri.parse('http://localhost:5050/api/auth/signin'),
+        Uri.parse('${dotenv.env['API_BASE_URL']}/api/auth/signin'),
         headers: {'Content-Type': 'application/json; charset=UTF-8'},
         body: jsonEncode({
           'phone': _phoneController.text,
@@ -792,7 +794,7 @@ class _SignInSignUpPageState extends State<SignInSignUpPage> with SingleTickerPr
     try {
       print("Attempting to sign up...");
       final response = await http.post(
-        Uri.parse('http://localhost:5050/api/auth/signup'),
+        Uri.parse('${dotenv.env['API_BASE_URL']}/api/auth/signup'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'name': _nameController.text,
@@ -857,7 +859,7 @@ class _SignInSignUpPageState extends State<SignInSignUpPage> with SingleTickerPr
   Future<void> _sendVerificationEmail(String email, String tempToken) async {
     try {
       final response = await http.post(
-        Uri.parse('http://localhost:5050/api/auth/send-verification-email'),
+        Uri.parse('${dotenv.env['API_BASE_URL']}/api/auth/send-verification-email'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'email': email,

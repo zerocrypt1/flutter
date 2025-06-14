@@ -3,6 +3,8 @@ import 'package:flutter_aakrit/sign_in_sign_up_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart'; // Add this import
+
 
 class UserProfilePage extends StatefulWidget {
   const UserProfilePage({super.key});
@@ -61,7 +63,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
       }
       
       final response = await http.get(
-        Uri.parse('http://localhost:5050/api/users/$userId'),
+        Uri.parse('${dotenv.env['API_BASE_URL']}/api/users/$userId'),
         headers: {
           'Authorization': 'Bearer $token',
         },
@@ -138,7 +140,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
       
       // Fetch all applicants
       final response = await http.get(
-        Uri.parse('http://localhost:5050/api/formdatas'),
+        Uri.parse('${dotenv.env['API_BASE_URL']}/api/formdatas'),
         headers: {
           'Authorization': 'Bearer $token',
         },
@@ -176,7 +178,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
       final userId = await storage.read(key: 'userId');
       
       final response = await http.put(
-        Uri.parse('http://localhost:5050/api/users/$userId'),
+        Uri.parse('${dotenv.env['API_BASE_URL']}/api/users/$userId'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -228,7 +230,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
       if (isFavorite) {
         // Remove from favorites
         final response = await http.delete(
-          Uri.parse('http://localhost:5050/api/users/$userId/favorites/$applicantId'),
+          Uri.parse('${dotenv.env['API_BASE_URL']}/api/users/$userId/favorites/$applicantId'),
           headers: {
             'Authorization': 'Bearer $token',
           },
@@ -251,7 +253,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
       } else {
         // Add to favorites - shouldn't happen in this context, but handled for completeness
         final response = await http.post(
-          Uri.parse('http://localhost:5050/api/users/$userId/favorites'),
+          Uri.parse('${dotenv.env['API_BASE_URL']}/api/users/$userId/favorites'),
           headers: {
             'Authorization': 'Bearer $token',
             'Content-Type': 'application/json',

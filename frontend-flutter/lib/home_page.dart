@@ -12,6 +12,8 @@ import 'profile.dart';
 import 'timing_filter.dart';
 import 'location _filter.dart'; // Fixed import name
 import 'pricingPage.dart'; // Import the pricing page
+import 'package:flutter_dotenv/flutter_dotenv.dart'; // Add this import
+
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -47,7 +49,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _fetchApplicantsData() async {
     try {
       final response = await http.get(
-        Uri.parse('http://localhost:5050/api/formdatas'),
+        Uri.parse('${dotenv.env['API_BASE_URL']}/api/formdatas'),
       );
 
       if (response.statusCode == 200) {

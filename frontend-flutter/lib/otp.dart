@@ -3,6 +3,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart'; // Add this import
+
 
 class OTPVerificationPage extends StatefulWidget {
   final String email;
@@ -109,7 +111,7 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> with SingleTi
     
     try {
       final response = await http.post(
-        Uri.parse('http://localhost:5050/api/auth/verify-otp'),
+        Uri.parse('${dotenv.env['API_BASE_URL']}/api/auth/verify-otp'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'email': widget.email,
@@ -173,7 +175,7 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> with SingleTi
 
     try {
       final response = await http.post(
-        Uri.parse('http://localhost:5050/api/auth/resend-otp'),
+        Uri.parse('${dotenv.env['API_BASE_URL']}/api/auth/resend-otp'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'email': widget.email,
