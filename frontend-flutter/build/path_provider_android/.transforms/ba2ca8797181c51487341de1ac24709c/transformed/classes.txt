@@ -1,0 +1,9 @@
+io/flutter/plugins/pathprovider/Messages$FlutterError.class
+io/flutter/plugins/pathprovider/Messages$PathProviderApi.class
+io/flutter/plugins/pathprovider/Messages$PigeonCodec.class
+io/flutter/plugins/pathprovider/Messages$StorageDirectory.class
+io/flutter/plugins/pathprovider/Messages.class
+io/flutter/plugins/pathprovider/PathProviderPlugin$1.class
+io/flutter/plugins/pathprovider/PathProviderPlugin.class
+io/flutter/plugins/pathprovider/R.class
+io/flutter/plugins/pathprovider/StorageDirectoryMapper.class

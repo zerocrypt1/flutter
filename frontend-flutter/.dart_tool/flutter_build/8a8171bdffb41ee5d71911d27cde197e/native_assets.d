@@ -1,0 +1,1 @@
+ D:\\Fluter_app\\ramyank\\project-ramyank\\frontend-flutter\\.dart_tool\\flutter_build\\8a8171bdffb41ee5d71911d27cde197e\\native_assets.yaml: 
