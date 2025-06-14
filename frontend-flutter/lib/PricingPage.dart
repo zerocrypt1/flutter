@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart'; // Add this dependency
 
 class PricingPage extends StatefulWidget {
   const PricingPage({super.key});
@@ -10,42 +11,53 @@ class PricingPage extends StatefulWidget {
 }
 
 class _PricingPageState extends State<PricingPage> with SingleTickerProviderStateMixin {
-  int _selectedPlanIndex = 0; // Index of the selected plan
+  int _selectedPlanIndex = 0;
   late Razorpay _razorpay;
   bool _isProcessing = false;
   late AnimationController _animationController;
   late Animation<double> _fadeInAnimation;
   bool _isSubscriptionSuccess = false;
 
-  // Plan details
-  final List<Map<String, dynamic>> _plans = [
+  // Environment variables
+  String get razorpayKeyId => dotenv.env['RAZORPAY_KEY_ID'] ?? 'rzp_test_uCpWKWiRX50tVp';
+  String get appName => dotenv.env['APP_NAME'] ?? 'My Applicants App';
+  String get themeColor => dotenv.env['APP_THEME_COLOR'] ?? '#7C4DFF';
+  String get defaultContact => dotenv.env['DEFAULT_CONTACT'] ?? '8416842051';
+  String get defaultEmail => dotenv.env['DEFAULT_EMAIL'] ?? 'shivansh7940@gmail.com';
+  String get currency => dotenv.env['CURRENCY'] ?? 'INR';
+  bool get retryEnabled => dotenv.env['RETRY_ENABLED']?.toLowerCase() == 'true';
+  int get retryMaxCount => int.tryParse(dotenv.env['RETRY_MAX_COUNT'] ?? '1') ?? 1;
+  List<String> get externalWallets => dotenv.env['EXTERNAL_WALLETS']?.split(',') ?? ['paytm'];
+
+  // Plan details with environment variables
+  List<Map<String, dynamic>> get _plans => [
     {
       'name': 'Basic',
-      'price': '349',
-      'annualPrice': '2,989',
-      'annualDiscount': '1,200',
+      'price': dotenv.env['BASIC_MONTHLY_PRICE'] ?? '349',
+      'annualPrice': dotenv.env['BASIC_ANNUAL_PRICE'] ?? '2,989',
+      'annualDiscount': dotenv.env['BASIC_ANNUAL_DISCOUNT'] ?? '1,200',
       'features': ['View all applicants', 'Basic filters', 'Email support'],
-      'color': Color(0xFF4FC3F7),
+      'color': Color(int.tryParse(dotenv.env['BASIC_PLAN_COLOR'] ?? '0xFF4FC3F7') ?? 0xFF4FC3F7),
       'billingCycle': 'monthly',
       'bestValue': false,
     },
     {
       'name': 'Premium',
-      'price': '699',
-      'annualPrice': '5,988',
-      'annualDiscount': '3,400',
+      'price': dotenv.env['PREMIUM_MONTHLY_PRICE'] ?? '699',
+      'annualPrice': dotenv.env['PREMIUM_ANNUAL_PRICE'] ?? '5,988',
+      'annualDiscount': dotenv.env['PREMIUM_ANNUAL_DISCOUNT'] ?? '3,400',
       'features': ['All basic features', 'Priority listing', 'Advanced filtering', 'Chat support'],
-      'color': Color(0xFF7C4DFF),
+      'color': Color(int.tryParse(dotenv.env['PREMIUM_PLAN_COLOR'] ?? '0xFF7C4DFF') ?? 0xFF7C4DFF),
       'billingCycle': 'monthly',
       'bestValue': true,
     },
     {
       'name': 'Professional',
-      'price': '1,149',
-      'annualPrice': '9,999',
-      'annualDiscount': '3,789',
+      'price': dotenv.env['PROFESSIONAL_MONTHLY_PRICE'] ?? '1,149',
+      'annualPrice': dotenv.env['PROFESSIONAL_ANNUAL_PRICE'] ?? '9,999',
+      'annualDiscount': dotenv.env['PROFESSIONAL_ANNUAL_DISCOUNT'] ?? '3,789',
       'features': ['All premium features', 'Background verification', 'Premium support', 'Analytics'],
-      'color': Color(0xFFFF9800),
+      'color': Color(int.tryParse(dotenv.env['PROFESSIONAL_PLAN_COLOR'] ?? '0xFFFF9800') ?? 0xFFFF9800),
       'billingCycle': 'monthly',
       'bestValue': false,
     },
@@ -54,8 +66,6 @@ class _PricingPageState extends State<PricingPage> with SingleTickerProviderStat
   @override
   void initState() {
     super.initState();
-    
-    // Initialize Razorpay immediately
     _initializeRazorpay();
 
     _animationController = AnimationController(
@@ -75,10 +85,7 @@ class _PricingPageState extends State<PricingPage> with SingleTickerProviderStat
 
   void _initializeRazorpay() {
     try {
-      // Initialize Razorpay instance
       _razorpay = Razorpay();
-      
-      // Register event listeners
       _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
       _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
       _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
@@ -86,7 +93,6 @@ class _PricingPageState extends State<PricingPage> with SingleTickerProviderStat
       debugPrint('Razorpay initialized successfully');
     } catch (e) {
       debugPrint('Error initializing Razorpay: $e');
-      // Show an error toast
       Fluttertoast.showToast(
         msg: "Failed to initialize payment gateway: $e",
         toastLength: Toast.LENGTH_LONG,
@@ -99,7 +105,6 @@ class _PricingPageState extends State<PricingPage> with SingleTickerProviderStat
 
   @override
   void dispose() {
-    // Make sure to clear the razorpay instance
     try {
       _razorpay.clear();
     } catch (e) {
@@ -110,46 +115,39 @@ class _PricingPageState extends State<PricingPage> with SingleTickerProviderStat
   }
 
   void _openCheckout(String planName, String price) async {
-    // First set state to show loading
     setState(() {
       _isProcessing = true;
     });
 
     try {
-      // Convert price to paise (Razorpay uses smallest currency unit)
-      // Make sure to handle the comma in the price string
       int pricePaise = int.parse(price.replaceAll(',', '')) * 100;
 
-      // Define options for Razorpay checkout
       var options = {
-        'key': 'rzp_test_uCpWKWiRX50tVp', // Fixed: removed tab character
-        'amount': pricePaise.toString(), // Convert to string as Razorpay expects string
-        'currency': 'INR',
-        'name': 'My Applicants App',
+        'key': razorpayKeyId,
+        'amount': pricePaise.toString(),
+        'currency': currency,
+        'name': appName,
         'description': '$planName Plan Subscription',
         'prefill': {
-          'contact': '8416842051', // Add a default contact number
-          'email': 'shivansh7940@gmail.com', // Add a default email
+          'contact': defaultContact,
+          'email': defaultEmail,
         },
         'external': {
-          'wallets': ['paytm']
+          'wallets': externalWallets
         },
         'theme': {
-          'color': '#7C4DFF',
+          'color': themeColor,
         },
         'retry': {
-          'enabled': true,
-          'max_count': 1,
+          'enabled': retryEnabled,
+          'max_count': retryMaxCount,
         },
       };
       
       debugPrint('Opening Razorpay checkout with options: $options');
-      
-      // Open Razorpay checkout
       _razorpay.open(options);
       
     } catch (e) {
-      // If there's an error, turn off the processing indicator
       if (mounted) {
         setState(() {
           _isProcessing = false;
@@ -182,7 +180,6 @@ class _PricingPageState extends State<PricingPage> with SingleTickerProviderStat
       gravity: ToastGravity.CENTER,
     );
     
-    // Show success dialog and then navigate back with subscription flag
     _showSuccessDialog();
   }
 
@@ -248,7 +245,6 @@ class _PricingPageState extends State<PricingPage> with SingleTickerProviderStat
               child: Text('Go to Home', style: TextStyle(fontSize: 16)),
               onPressed: () {
                 Navigator.of(context).pop();
-                // Return to HomePage with subscription status
                 Navigator.pop(context, true);
               },
             ),
@@ -260,10 +256,11 @@ class _PricingPageState extends State<PricingPage> with SingleTickerProviderStat
 
   void _toggleBillingCycle(int planIndex) {
     setState(() {
-      if (_plans[planIndex]['billingCycle'] == 'monthly') {
-        _plans[planIndex]['billingCycle'] = 'annual';
+      final plans = _plans;
+      if (plans[planIndex]['billingCycle'] == 'monthly') {
+        plans[planIndex]['billingCycle'] = 'annual';
       } else {
-        _plans[planIndex]['billingCycle'] = 'monthly';
+        plans[planIndex]['billingCycle'] = 'monthly';
       }
     });
   }
@@ -332,7 +329,6 @@ class _PricingPageState extends State<PricingPage> with SingleTickerProviderStat
                         itemBuilder: (context, index) {
                           return _buildPlanCard(index);
                         },
-                        // Adjust cross axis count based on screen width
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: MediaQuery.of(context).size.width > 800 ? 3 : 
                                          (MediaQuery.of(context).size.width > 600 ? 2 : 1),
@@ -403,6 +399,8 @@ class _PricingPageState extends State<PricingPage> with SingleTickerProviderStat
   }
 
   Widget _buildRefundPolicy() {
+    final refundDays = int.tryParse(dotenv.env['REFUND_DAYS'] ?? '7') ?? 7;
+    
     return Container(
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -421,7 +419,7 @@ class _PricingPageState extends State<PricingPage> with SingleTickerProviderStat
           ),
           SizedBox(height: 8),
           Text(
-            'We offer a 7-day money-back guarantee if you\'re not satisfied with our service.',
+            'We offer a $refundDays-day money-back guarantee if you\'re not satisfied with our service.',
             style: TextStyle(fontSize: 14),
           ),
         ],
