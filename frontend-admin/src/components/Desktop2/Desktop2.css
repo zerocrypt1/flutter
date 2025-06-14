@@ -1,0 +1,193 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    overflow: auto;
+}
+
+.search{
+    height: 15px;
+    width: 15px;
+}
+
+.desktop2-container {
+    display: flex;
+    height: 100%;
+    font-family: 'Arial', sans-serif;
+    background-color: #f5f5f5;
+}
+
+.desktop2-sidebar {
+    background-color: #031634;
+    width: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 200px;
+    padding-top: 200px;
+    position: fixed;
+    top: 0px; 
+    bottom: 0;
+}
+.desktop2-sidebar-item:link{
+    background-color: #fff;
+}
+.desktop2-sidebar-item {
+    margin: 20px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #fff;
+    font-size: 14px;
+    text-align: center;
+}
+
+.desktop2-sidebar-item a img {
+    width: 28px;
+    height: 28px;
+    margin: 10px;
+}
+.desktop2-sidebar-item a span {
+    margin-top: 5px;
+    color: #fff; 
+    font-size: 12px;
+    padding: 8px;
+}
+
+.desktop2-main-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    margin-left: 80px; 
+    margin-top: 60px; 
+}
+
+.desktop2-topbar {
+    background-color: #f57b23;
+    height: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100; 
+}
+
+.desktop2-hamburger-icon {
+    width: 30px;
+    height: 30px;
+}
+
+.desktop2-search-bar {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    padding: 0 10px;
+    border-radius: 0px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    width: 60%; 
+    height: 40px;  
+}
+
+.desktop2-search-bar input {
+    border: none;
+    outline: none;
+    padding: 0px;
+    margin-top: 10px;
+    font-size: 20px;
+    color:#3333338f;
+    width: 100%; 
+    height: 70%;
+}
+
+.desktop2-search-icon {
+    position: relative;
+    margin: 10px;
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+}
+
+.desktop2-add-button {
+    padding: 5px 13px;
+    background-color: #c8cbd078;
+    color: black;
+    font-size:x-large;
+    border: none;
+    border-radius: 10px;
+    margin-right: 0px;
+    cursor: pointer;
+}
+
+.desktop2-profile-icon img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+}
+
+
+.desktop2-content-section {
+    padding: 0px;
+    padding-top: 50px;
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+}
+
+
+.desktop2-divider-line {
+    height: 1px;
+    background-color: #ccc;
+    margin: 20px 0px;
+    width:100%;
+}
+
+.desktop2-input-field {
+    width: 100%;
+    padding: 10px;
+    font-size: 24px;
+    color:#918d8d;
+    border: 0px solid #fff;
+    border-radius: 4px;
+    outline: none;
+}
+
+
+/* Responsiveness */
+@media (max-width: 768px) {
+    .desktop2-sidebar {
+        width: 80px;
+        padding:10px;
+        padding-top:250px;   
+        position: fixed; 
+    }
+  
+    .desktop2-sidebar-item {
+        font-size: 12px;
+    }
+
+    .desktop2-sidebar-item img {
+        width: 24px;
+        height: 24px;
+    }
+}
+
+@media (max-width: 480px) {
+    .desktop2-topbar {
+        padding: 0 10px;
+    }
+
+    .desktop2-sidebar {
+        gap: 100px;
+        padding-top: 200px;
+        position: fixed;
+    }
+}
