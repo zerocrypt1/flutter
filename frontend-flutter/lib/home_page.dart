@@ -37,7 +37,7 @@ class _HomePageState extends State<HomePage> {
   String? _landmark;
   bool _useLocationFilter = false;
   bool _isLoading = true;
-  bool _isSubscribed = false; // Track subscription status
+  final bool _isSubscribed = false; // Track subscription status
   final int _freeApplicantsLimit = 5; // Number of free applicants to show
 
   @override

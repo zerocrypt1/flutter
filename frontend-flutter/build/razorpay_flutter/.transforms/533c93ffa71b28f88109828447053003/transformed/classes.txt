@@ -1,3 +1,0 @@
-com/razorpay/razorpay_flutter/R.class
-com/razorpay/razorpay_flutter/RazorpayDelegate.class
-com/razorpay/razorpay_flutter/RazorpayFlutterPlugin.class

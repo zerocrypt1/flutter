@@ -1,7 +1,0 @@
-io/github/ponnamkarthik/toast/fluttertoast/FlutterToastPlugin.class
-io/github/ponnamkarthik/toast/fluttertoast/MethodCallHandlerImpl$onMethodCall$2.class
-io/github/ponnamkarthik/toast/fluttertoast/MethodCallHandlerImpl.class
-io/github/ponnamkarthik/toast/fluttertoast/R$drawable.class
-io/github/ponnamkarthik/toast/fluttertoast/R$id.class
-io/github/ponnamkarthik/toast/fluttertoast/R$layout.class
-io/github/ponnamkarthik/toast/fluttertoast/R.class

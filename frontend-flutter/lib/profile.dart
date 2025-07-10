@@ -2,8 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart'; // Add this import
-
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ProfilePage extends StatefulWidget {
   final Map<String, dynamic> applicant;
@@ -34,7 +33,6 @@ class _ProfilePageState extends State<ProfilePage> {
     });
 
     try {
-      // First, fetch the applicant's complete data using the name to get the ID
       final applicantsResponse = await http.get(
         Uri.parse('${dotenv.env['API_BASE_URL']}/api/formdatas'),
       );
@@ -42,19 +40,16 @@ class _ProfilePageState extends State<ProfilePage> {
       if (applicantsResponse.statusCode == 200) {
         final List<dynamic> allApplicants = jsonDecode(applicantsResponse.body);
         
-        // Find the applicant with matching name
         final matchingApplicant = allApplicants.firstWhere(
           (applicant) => applicant['name'] == widget.applicant['name'],
           orElse: () => null,
         );
 
         if (matchingApplicant != null) {
-          // Store the full data and applicant ID
           setState(() {
             _fullApplicantData = matchingApplicant;
           });
           
-          // Now check if this applicant is in the user's favorites
           await _checkIfFavorited(matchingApplicant['_id']);
         } else {
           throw Exception('Applicant not found');
@@ -125,7 +120,6 @@ class _ProfilePageState extends State<ProfilePage> {
       }
       
       if (_isFavorited) {
-        // Remove from favorites
         final response = await http.delete(
           Uri.parse('${dotenv.env['API_BASE_URL']}/api/users/$userId/favorites/${_fullApplicantData['_id']}'),
           headers: {
@@ -144,7 +138,6 @@ class _ProfilePageState extends State<ProfilePage> {
           throw Exception('Failed to remove from favorites');
         }
       } else {
-        // Add to favorites
         final response = await http.post(
           Uri.parse('${dotenv.env['API_BASE_URL']}/api/users/$userId/favorites'),
           headers: {
@@ -182,32 +175,38 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     final applicantData = _isLoading ? widget.applicant : (_fullApplicantData.isNotEmpty ? _fullApplicantData : widget.applicant);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth > 600;
     
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FC), // Soft background color
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: Text(
           'Applicant Profile', 
           style: TextStyle(
             fontWeight: FontWeight.w600, 
             color: Colors.grey[800],
-            fontSize: 18,
+            fontSize: 20,
           ),
         ),
         backgroundColor: Colors.white,
-        elevation: 1,
-        shadowColor: Colors.grey.withOpacity(0.2),
+        elevation: 0,
+        shadowColor: Colors.grey.withOpacity(0.1),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.grey[700]),
+          icon: Icon(Icons.arrow_back_ios, color: Colors.grey[700], size: 20),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 10),
+          Container(
+            margin: const EdgeInsets.only(right: 16),
+            decoration: BoxDecoration(
+              color: _isFavorited ? Colors.amber.withOpacity(0.1) : Colors.grey.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
             child: IconButton(
               icon: Icon(
                 _isFavorited ? Icons.star : Icons.star_border,
-                color: _isFavorited ? Colors.amber : Colors.grey[600],
+                color: _isFavorited ? Colors.amber[600] : Colors.grey[600],
                 size: 24,
               ),
               onPressed: _fullApplicantData['_id'] == null || _isLoadingAction 
@@ -220,91 +219,117 @@ class _ProfilePageState extends State<ProfilePage> {
       body: _isLoading
           ? const Center(
               child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF4F46E5)),
               ),
             )
           : SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                padding: EdgeInsets.symmetric(
+                  horizontal: isTablet ? 40 : 20, 
+                  vertical: 20
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Profile Header
+                    // Enhanced Profile Header
                     Center(
                       child: Column(
                         children: [
                           Container(
-                            width: 130,
-                            height: 130,
+                            width: isTablet ? 160 : 140,
+                            height: isTablet ? 160 : 140,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Colors.grey[300]!,
-                                width: 3,
+                              gradient: LinearGradient(
+                                colors: [
+                                  Color(0xFF4F46E5).withOpacity(0.1),
+                                  Color(0xFF7C3AED).withOpacity(0.1),
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.grey.withOpacity(0.2),
+                                  color: Color(0xFF4F46E5).withOpacity(0.2),
                                   spreadRadius: 2,
-                                  blurRadius: 5,
-                                  offset: const Offset(0, 3),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 8),
                                 )
                               ],
-                              image: const DecorationImage(
-                                image: NetworkImage('https://picsum.photos/200/200'),
-                                fit: BoxFit.cover,
+                            ),
+                            child: Container(
+                              margin: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: const DecorationImage(
+                                  image: NetworkImage('https://picsum.photos/200/200'),
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
                           ),
-                          const SizedBox(height: 15),
+                          const SizedBox(height: 20),
                           Text(
                             applicantData['name'] ?? 'Name Unavailable',
                             style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w600,
+                              fontSize: isTablet ? 28 : 24,
+                              fontWeight: FontWeight.w700,
                               color: Colors.grey[800],
+                              letterSpacing: 0.5,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Color(0xFF4F46E5).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              applicantData['occupation'] ?? 'N/A',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF4F46E5),
+                              ),
                             ),
                           ),
                         ],
                       ),
                     ),
+                    const SizedBox(height: 40),
+
+                    // Enhanced Timing Section
+                    _buildSectionTitle('Availability Schedule', Icons.schedule),
+                    _buildTimingCard(applicantData['timing'] ?? applicantData['timming'] ?? 'N/A'),
+                    const SizedBox(height: 24),
+
+                    // Professional Information Section
+                    _buildSectionTitle('Professional Information', Icons.work),
+                    _buildInfoCard([
+                      _buildDetailRow('Occupation', applicantData['occupation'] ?? 'N/A', Icons.badge),
+                    ]),
+                    const SizedBox(height: 24),
+
+                    // Personal Details Section
+                    _buildSectionTitle('Personal Details', Icons.person),
+                    _buildInfoCard([
+                      _buildDetailRow('Gender', applicantData['gender'] ?? 'N/A', Icons.person_outline),
+                      _buildDetailRow('Age', applicantData['age']?.toString() ?? 'N/A', Icons.cake),
+                      _buildDetailRow('Phone', applicantData['phoneNumber'] ?? 'N/A', Icons.phone),
+                    ]),
+                    const SizedBox(height: 24),
+
+                    // Location Information Section
+                    _buildSectionTitle('Location Information', Icons.location_on),
+                    _buildInfoCard([
+                      _buildDetailRow('Address', applicantData['address'] ?? 'N/A', Icons.home),
+                      _buildDetailRow('Landmarks', applicantData['landmarks'] ?? 'N/A', Icons.place),
+                      _buildDetailRow('State', applicantData['state'] ?? 'N/A', Icons.map),
+                    ]),
                     const SizedBox(height: 30),
-
-                    // Profile Details Section
-                    _buildSectionTitle('Professional Information'),
-                    _buildInfoCard([
-                      _buildDetailRow('Occupation', applicantData['occupation'] ?? 'N/A'),
-                      _buildDetailRow('Timing', 
-                        _formatTimings(applicantData['timing'] ?? applicantData['timming'] ?? 'N/A')
-                      ),
-                      _buildDetailRow('Salary', applicantData['salary'] ?? 'N/A'),
-                    ]),
-
-                    const SizedBox(height: 20),
-
-                    _buildSectionTitle('Personal Details'),
-                    _buildInfoCard([
-                      _buildDetailRow('Gender', applicantData['gender'] ?? 'N/A'),
-                      _buildDetailRow('Age', applicantData['age']?.toString() ?? 'N/A'),
-                      _buildDetailRow('Phone', applicantData['phoneNumber'] ?? 'N/A'),
-                    ]),
-
-                    const SizedBox(height: 20),
-
-                    _buildSectionTitle('Contact Information'),
-                    _buildInfoCard([
-                      _buildDetailRow('Address', applicantData['address'] ?? 'N/A'),
-                      _buildDetailRow('Landmarks', applicantData['landmarks'] ?? 'N/A'),
-                      _buildDetailRow('State', applicantData['state'] ?? 'N/A'),
-                    ]),
-
-                    const SizedBox(height: 20),
-
-                    _buildSectionTitle('Identification'),
-                    _buildInfoCard([
-                      _buildDetailRow('ID Proof', applicantData['identityProof'] ?? 'N/A'),
-                    ]),
                   ],
                 ),
               ),
@@ -312,76 +337,227 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // Formatting timings to look more professional
-  String _formatTimings(dynamic timings) {
-    if (timings == null) return 'N/A';
-    if (timings is String) return timings;
-    if (timings is List) {
-      return timings.join(', ');
+  // Enhanced timing card with better UI
+  Widget _buildTimingCard(dynamic timings) {
+    List<String> timingList = [];
+    
+    if (timings is String && timings != 'N/A') {
+      timingList = timings.split(',').map((e) => e.trim()).toList();
+    } else if (timings is List) {
+      timingList = timings.map((e) => e.toString()).toList();
     }
-    return 'N/A';
+
+    if (timingList.isEmpty) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.08),
+              spreadRadius: 1,
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            )
+          ],
+          border: Border.all(color: Colors.grey[100]!),
+        ),
+        child: Center(
+          child: Text(
+            'No availability schedule provided',
+            style: TextStyle(
+              color: Colors.grey[600],
+              fontSize: 16,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.08),
+            spreadRadius: 1,
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          )
+        ],
+        border: Border.all(color: Colors.grey[100]!),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Color(0xFF4F46E5).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.access_time,
+                  size: 20,
+                  color: Color(0xFF4F46E5),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Available Times',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[800],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: timingList.map((timing) => _buildTimingChip(timing)).toList(),
+          ),
+        ],
+      ),
+    );
   }
 
-  // New method to create section titles
-  Widget _buildSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+  // Individual timing chip
+  Widget _buildTimingChip(String timing) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Color(0xFF4F46E5).withOpacity(0.1),
+            Color(0xFF7C3AED).withOpacity(0.1),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Color(0xFF4F46E5).withOpacity(0.3),
+          width: 1,
+        ),
+      ),
       child: Text(
-        title,
+        timing,
         style: TextStyle(
-          fontSize: 16,
+          fontSize: 14,
           fontWeight: FontWeight.w600,
-          color: Colors.grey[800],
-          letterSpacing: 0.5,
+          color: Color(0xFF4F46E5),
         ),
       ),
     );
   }
 
-  // New method to create info cards with a clean, professional look
+  // Enhanced section title with icon
+  Widget _buildSectionTitle(String title, IconData icon) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Color(0xFF4F46E5).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              icon,
+              size: 20,
+              color: Color(0xFF4F46E5),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: Colors.grey[800],
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Enhanced info card with better styling
   Widget _buildInfoCard(List<Widget> children) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withOpacity(0.08),
             spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           )
         ],
-        border: Border.all(color: Colors.grey[200]!),
+        border: Border.all(color: Colors.grey[100]!),
       ),
-      padding: const EdgeInsets.all(15),
+      padding: const EdgeInsets.all(20),
       child: Column(
         children: children,
       ),
     );
   }
 
-  // Improved detail row with more professional styling
-  Widget _buildDetailRow(String label, String value) {
+  // Enhanced detail row with icons and better styling
+  Widget _buildDetailRow(String label, String value, IconData icon) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              color: Colors.grey[700],
-              fontWeight: FontWeight.w500,
-              fontSize: 15,
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Icon(
+              icon,
+              size: 16,
+              color: Colors.grey[600],
             ),
           ),
-          Text(
-            value,
-            style: TextStyle(
-              color: Colors.grey[900],
-              fontWeight: FontWeight.w500,
-              fontSize: 15,
+          const SizedBox(width: 12),
+          Expanded(
+            flex: 2,
+            child: Text(
+              label,
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w500,
+                fontSize: 15,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: Text(
+              value,
+              style: TextStyle(
+                color: Colors.grey[900],
+                fontWeight: FontWeight.w600,
+                fontSize: 15,
+              ),
+              textAlign: TextAlign.end,
             ),
           ),
         ],

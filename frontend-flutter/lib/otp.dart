@@ -11,10 +11,10 @@ class OTPVerificationPage extends StatefulWidget {
   final String tempToken;
 
   const OTPVerificationPage({
-    Key? key,
+    super.key,
     required this.email,
     required this.tempToken,
-  }) : super(key: key);
+  });
 
   @override
   _OTPVerificationPageState createState() => _OTPVerificationPageState();

@@ -8,7 +8,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart'; // Add this import
 import 'otp.dart'; // Import the OTP verification page
 
 class ForgotPasswordPage extends StatefulWidget {
-  const ForgotPasswordPage({Key? key}) : super(key: key);
+  const ForgotPasswordPage({super.key});
 
   @override
   _ForgotPasswordPageState createState() => _ForgotPasswordPageState();

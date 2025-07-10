@@ -768,10 +768,10 @@ class _LocationFilterPageState extends State<LocationFilterPage> {
                       const SizedBox(width: 8),
                       ElevatedButton(
                         onPressed: _setCustomLandmark,
-                        child: const Text('Add'),
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
                         ),
+                        child: const Text('Add'),
                       ),
                     ],
                   ),
