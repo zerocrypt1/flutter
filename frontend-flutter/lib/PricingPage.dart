@@ -60,7 +60,9 @@ class _PricingPageState extends State<PricingPage> with SingleTickerProviderStat
       'color': Color(int.tryParse(dotenv.env['PROFESSIONAL_PLAN_COLOR'] ?? '0xFFFF9800') ?? 0xFFFF9800),
       'billingCycle': 'monthly',
       'bestValue': false,
-    },
+      
+
+  },
   ];
 
   @override

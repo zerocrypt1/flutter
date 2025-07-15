@@ -18,13 +18,14 @@ class _OccupationFilterPageState extends State<OccupationFilterPage> {
   List<String> _selectedOccupations = [];
 
   final List<String> occupations = [
-    'Web Developer',
+    'sweepres',
     'Backend Developer',
     'Mobile Developer',
     'Tester',
     'Peoples team',
     'Finance',
     'Devops',
+    
   ];
 
   @override
